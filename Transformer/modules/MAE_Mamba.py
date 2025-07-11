@@ -18,35 +18,34 @@ class MAE_Mamba(nn.Module):
         d_d=512,
         dec_layers = 8,
         dropout=0.1,
-        norm_layer = nn.LayerNorm.to('cuda' if torch.cuda.is_available() else 'cpu'),
+        norm_layer = nn.LayerNorm,
         graph:GraphFeatures=None
     ):
         super().__init__()
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.C = C
         self.C_out = C_out
         self.d_e=d_e
         self.T=T
         self.N = N
         self.activation = nn.GELU()
-        self.graph_token_embed = nn.Parameter(torch.zeros(1,1,1,d_e)).to(self.device)
-        self.decoder_graph_token_embed = nn.Parameter(torch.zeros(1,1,1,d_d)).to(self.device)
-        self.graph_token_virtual_distance = nn.Embedding(1,hno).to(self.device)
+        self.graph_token_embed = nn.Parameter(torch.zeros(1,1,1,d_e))
+        self.decoder_graph_token_embed = nn.Parameter(torch.zeros(1,1,1,d_d))
+        self.graph_token_virtual_distance = nn.Embedding(1,hno)
         self.blocks = Encoder(
             C,N,graph,enc_layers,d_e,d_e*4,hno,dropout,S
         )
         self.norm = norm_layer(d_e)
-        self.mask_token = nn.Parameter(torch.zeros(1,1,d_d)).to(self.device)
-        self.detodd = nn.Linear(d_e,d_d).to(self.device)
-        self.decoder_blocks = Encoder(C,N,graph,dec_layers,d_d,d_d*4,hno,dropout,S).to(self.device)
+        self.mask_token = nn.Parameter(torch.zeros(1,1,d_d))
+        self.detodd = nn.Linear(d_e,d_d)
+        self.decoder_blocks = Encoder(C,N,graph,dec_layers,d_d,d_d*4,hno,dropout,S)
         self.dec_norm = norm_layer(d_d)
         self.dec_conv_1 = nn.Conv2d(
             in_channels=d_d,
             out_channels=d_d//2,
             kernel_size=(1,1),
             bias=False
-        ).to(self.device)
-        self.dec_b_norm = nn.BatchNorm2d(d_d//2).to(self.device)
+        )
+        self.dec_b_norm = nn.BatchNorm2d(d_d//2)
         self.dec_conv_2=nn.Conv2d(
             in_channels=d_d//2,
             out_channels=C_out,
@@ -55,18 +54,18 @@ class MAE_Mamba(nn.Module):
         )
         self.pos_embed_time_enc = nn.Parameter(
             torch.zeros(1,T,d_e)
-        ).to(self.device)
+        )
         self.pos_embed_space_enc = nn.Parameter(
             torch.zeros(1,N,d_e)
-        ).to(self.device)
+        )
         self.pos_embed_time_dec = nn.Parameter(
             torch.zeros(1,T,d_d)
-        ).to(self.device)
+        )
         self.pos_embed_space_dec = nn.Parameter(
             torch.zeros(1,N,d_d)
-        ).to(self.device)
-        self.pos_embed_cls_enc = nn.Parameter(torch.zeros(1,1,d_e)).to(self.device)
-        self.pos_embed_cls_dec = nn.Parameter(torch.zeros(1,1,d_d)).to(self.device)
+        )
+        self.pos_embed_cls_enc = nn.Parameter(torch.zeros(1,1,d_e))
+        self.pos_embed_cls_dec = nn.Parameter(torch.zeros(1,1,d_d))
     def initialize_weights(self):
         torch.nn.init.trunc_normal_(self.pos_embed_time_enc,std=0.02)
         torch.nn.init.trunc_normal_(self.pos_embed_space_enc,std=0.02)

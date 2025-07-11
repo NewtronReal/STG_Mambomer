@@ -3,9 +3,14 @@ import numpy as np
 import torch.utils.data as utils
 import pandas as pd
 
-
+def get_device():
+    if torch.cuda.is_available():
+        return 'cuda'
+    elif torch.backends.mps.is_available():
+        return 'mps'
+    else:
+        return 'cpu'
 def PrepareDataset(speed_matrix, BATCH_SIZE=30, seq_len=12, pred_len=12, train_propotion=0.7, valid_propotion=0.1,limit=100000000,win_size=3):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     time_len = speed_matrix.shape[0]
     #max_speed = speed_matrix.max().max()
     #speed_matrix = speed_matrix / max_speed
@@ -19,7 +24,7 @@ def PrepareDataset(speed_matrix, BATCH_SIZE=30, seq_len=12, pred_len=12, train_p
     for i in range(limit - seq_len - pred_len):
         speed_sequences.append(speed_matrix.iloc[i:i + seq_len].values)
         speed_labels.append(speed_matrix.iloc[i + seq_len:i + seq_len + pred_len].values)
-    speed_sequences, speed_labels = torch.Tensor(np.asarray(speed_sequences)), torch.Tensor(np.asarray(speed_labels))
+    speed_sequences, speed_labels = torch.Tensor(np.asarray(speed_sequences)).to(get_device()), torch.Tensor(np.asarray(speed_labels)).to(get_device())
     # Reshape labels to have the same second dimension as the sequences
     speed_sequences
     
@@ -40,9 +45,9 @@ def PrepareDataset(speed_matrix, BATCH_SIZE=30, seq_len=12, pred_len=12, train_p
     valid_data, valid_label = speed_sequences[train_index:valid_index], speed_labels[train_index:valid_index]
     test_data, test_label = speed_sequences[valid_index:], speed_labels[valid_index:]
 
-    train_data, train_label = torch.Tensor(train_data).unsqueeze(-1).to(device), torch.Tensor(train_label).unsqueeze(-1).to(device)
-    valid_data, valid_label = torch.Tensor(valid_data).unsqueeze(-1).to(device), torch.Tensor(valid_label).unsqueeze(-1).to(device)
-    test_data, test_label = torch.Tensor(test_data).unsqueeze(-1).to(device), torch.Tensor(test_label).unsqueeze(-1).to(device)
+    train_data, train_label = torch.Tensor(train_data).unsqueeze(-1).to(get_device()), torch.Tensor(train_label).unsqueeze(-1).to(get_device())
+    valid_data, valid_label = torch.Tensor(valid_data).unsqueeze(-1).to(get_device()), torch.Tensor(valid_label).unsqueeze(-1).to(get_device())
+    test_data, test_label = torch.Tensor(test_data).unsqueeze(-1).to(get_device()), torch.Tensor(test_label).unsqueeze(-1).to(get_device())
 
     train_dataset = utils.TensorDataset(train_data, train_label)
     valid_dataset = utils.TensorDataset(valid_data, valid_label)

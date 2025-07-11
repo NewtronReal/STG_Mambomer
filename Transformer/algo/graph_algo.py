@@ -10,16 +10,15 @@ def find_path(path, i, j):
         return find_path(path, i, k)[:-1] + find_path(path, k, j)
 
 def floyd_warshall(adj,clip:int=50):
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     filename = 'floyd_warshall_clip'+str(clip)  
     if os.path.exists(filename+'.npz'):
         mat = np.load(filename+'.npz')
         dist,path=mat['a'],mat['b']
-        return torch.tensor(dist).to(device),torch.tensor(path).to(device)
+        return torch.tensor(dist),torch.tensor(path)
     
     n = adj.shape[0]
     dist = adj.clone()
-    path = torch.zeros_like(adj,dtype=torch.int64).to(device)
+    path = torch.zeros_like(adj,dtype=torch.int64)
     dist[dist == 0] = float('inf')
     for i in range(n):
         dist[i][i] = 0
@@ -35,4 +34,4 @@ def floyd_warshall(adj,clip:int=50):
                 print(f"{count}/{n**3}")
     dist[dist>=clip]=clip
     np.savez(filename,a=dist.numpy(),b=path.numpy())
-    return torch.tensor(dist).to(device),torch.tensor(path).to(device)
+    return torch.tensor(dist),torch.tensor(path)
