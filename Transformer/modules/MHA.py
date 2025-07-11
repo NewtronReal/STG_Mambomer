@@ -9,13 +9,14 @@ Custom MHA module inspired from T-Graphormer will be replacing GraphormerEncoder
 class MHA(nn.Module):
     def __init__(self,input:int,embedd:int,hno:int,output:int,dropout:int=0.1):
         super().__init__()
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.hno = hno
         self.hsz = embedd // hno
         assert self.hno*self.hsz == embedd, "Wrong hno, hsz is not an integer"
-        self.W_Q = nn.Linear(input,embedd,bias=True)
-        self.W_K = nn.Linear(input,embedd,bias=True)
-        self.W_V = nn.Linear(input,embedd,bias=True)
-        self.output_projection = nn.Linear(embedd,output,bias=True)
+        self.W_Q = nn.Linear(input,embedd,bias=True).to(self.device)
+        self.W_K = nn.Linear(input,embedd,bias=True).to(self.device)
+        self.W_V = nn.Linear(input,embedd,bias=True).to(self.device)
+        self.output_projection = nn.Linear(embedd,output,bias=True).to(self.device)
         self.reset_parameters()
         self.dropout_module = nn.Dropout(dropout)
     def reset_parameters(self):

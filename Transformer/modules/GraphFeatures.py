@@ -10,6 +10,7 @@ from torch_geometric.utils import dense_to_sparse
 
 class GraphFeatures():
     def __init__(self,adj_path="adj.npz",clip=50):
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         a = self.get_graph_info(adj_path)
         self.adj = a[0]
         self.in_degree = a[1]
@@ -18,7 +19,7 @@ class GraphFeatures():
         self.max_out_degree = a[4]
         self.spd,self.path = floyd_warshall(self.adj,clip)
     def get_graph_info(self,adj_path:str = "adj.npz",normalize:bool=True,scale=10):
-        adj = torch.tensor(sp.load_npz(adj_path).toarray())
+        adj = torch.tensor(sp.load_npz(adj_path).toarray()).to(self.device)
         adj[adj!=0] = 1/adj[adj!=0]
         if normalize:
             maxval = torch.max(torch.max(adj))

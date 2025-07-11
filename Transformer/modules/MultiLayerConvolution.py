@@ -26,6 +26,7 @@ class Conv2D(nn.Module):
             activation: Optional[Callable[[torch.FloatTensor], torch.FloatTensor]] = F.gelu,
     ):
         super(Conv2D, self).__init__()
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.activation = activation
         self.conv = nn.Conv2d(
             input_dims,
@@ -34,8 +35,8 @@ class Conv2D(nn.Module):
             stride=stride,
             padding=0,
             bias=use_bias,
-        )
-        self.batch_norm = nn.BatchNorm2d(output_dims)
+        ).to(self.device)
+        self.batch_norm = nn.BatchNorm2d(output_dims).to(self.device)
 
     def forward(self, x):
         x = self.conv(x)
@@ -48,6 +49,7 @@ class Conv2D(nn.Module):
 class FC(nn.Module):
     def __init__(self, input_dims, units, activations, use_bias):
         super(FC, self).__init__()
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         if isinstance(units, int):
             units = [units]
             input_dims = [input_dims]
@@ -66,7 +68,7 @@ class FC(nn.Module):
                     stride=[1, 1],
                     use_bias=use_bias,
                     activation=activation,
-                )
+                ).to(self.device)
                 for input_dim, num_unit, activation in zip(
                 input_dims, units, activations
             )
@@ -88,17 +90,18 @@ class GraphNodeFeature(nn.Module):
                  graph:GraphFeatures,
                  ):
         super().__init__()
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.N = N
         self.C = C
         self.d = d
         self.graph = graph
-        self.c_enc = CentralityEncoder(graph.max_in_degree,graph.max_out_degree,d)
+        self.c_enc = CentralityEncoder(graph.max_in_degree,graph.max_out_degree,d).to(self.device)
         self.conv = FC(
             input_dims=[C,d],
             units=[d,d],
             activations=[nn.GELU(),None],
             use_bias = False
-        )
+        ).to(self.device)
     def forward(self,x):
         x =self.conv(x)
         x = self.c_enc(x,self.graph.in_degree,self.graph.out_degree)

@@ -20,13 +20,14 @@ class Encoder(nn.Module):
                  S=50
                  ):
         super().__init__()
-        self.dropout_module = nn.Dropout(dropout)
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.dropout_module = nn.Dropout(dropout).to(self.device)
         self.hno = hno
-        self.gnf = GraphNodeFeature(N,C,d,graph)
-        self.sp_bias = SpatialAttensionBias(graph,d,S,hno)
-        self.emb_layer_norm = LayerNorm(d,eps=1e-8)
-        self.layers = nn.ModuleList([])
-        self.layers.extend([EncodingLayer(d,ffno,hno,dropout) for _ in range(enclayers)])
+        self.gnf = GraphNodeFeature(N,C,d,graph).to(self.device)
+        self.sp_bias = SpatialAttensionBias(graph,d,S,hno).to(self.device)
+        self.emb_layer_norm = LayerNorm(d,eps=1e-8).to(self.device)
+        self.layers = nn.ModuleList([]).to(self.device)
+        self.layers.extend([EncodingLayer(d,ffno,hno,dropout).to(self.device) for _ in range(enclayers)])
         
     def compute_attn_bias(self,x):
         attn_bias = self.sp_bias(x)
