@@ -2,10 +2,10 @@ from typing import Optional,Union
 import torch
 import torch.nn as nn
 from torch.nn import LayerNorm
-from modules.MultiLayerConvolution import GraphNodeFeature
-from modules.SpatialAttensionBias import SpatialAttensionBias
-from modules.EncodingLayer import EncodingLayer
-from modules.GraphFeatures import GraphFeatures
+from Transformer.modules.MultiLayerConvolution import GraphNodeFeature
+from Transformer.modules.SpatialAttensionBias import SpatialAttensionBias
+from Transformer.modules.EncodingLayer import EncodingLayer
+from Transformer.modules.GraphFeatures import GraphFeatures
 
 class Encoder(nn.Module):
     def __init__(self,

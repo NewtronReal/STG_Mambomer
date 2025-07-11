@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Union, Optional, Callable
-from modules.GraphFeatures import GraphFeatures
-from modules.CentralityEncoder import CentralityEncoder
+from Transformer.modules.GraphFeatures import GraphFeatures
+from Transformer.modules.CentralityEncoder import CentralityEncoder
 
 ## Conv2D module as written in T-Graphormer
 """

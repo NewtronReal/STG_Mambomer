@@ -4,7 +4,7 @@ import torch.utils.data as utils
 import pandas as pd
 
 
-def PrepareDataset(speed_matrix, BATCH_SIZE=30, seq_len=12, pred_len=12, train_propotion=0.7, valid_propotion=0.1,limit=100000000):
+def PrepareDataset(speed_matrix, BATCH_SIZE=30, seq_len=12, pred_len=12, train_propotion=0.7, valid_propotion=0.1,limit=100000000,win_size=3):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     time_len = speed_matrix.shape[0]
     #max_speed = speed_matrix.max().max()
@@ -22,8 +22,11 @@ def PrepareDataset(speed_matrix, BATCH_SIZE=30, seq_len=12, pred_len=12, train_p
     speed_sequences, speed_labels = torch.Tensor(np.asarray(speed_sequences)), torch.Tensor(np.asarray(speed_labels))
     # Reshape labels to have the same second dimension as the sequences
     speed_sequences
+    
+    ##Sliding windows
+    speed_sequences = speed_sequences.contiguous().permute(0,2,1).unfold(dimension=-1,size=win_size, step=1).contiguous().permute(0,2,3,1)
+    speed_labels = speed_labels.contiguous().permute(0,2,1).unfold(dimension=-1,size=win_size, step=1).contiguous().permute(0,2,3,1)
     print(speed_labels.shape,speed_sequences.shape)
-
     # shuffle & split the dataset to training and testing sets
     sample_size = speed_sequences.shape[0]
     # index = np.arange(sample_size, dtype=int)

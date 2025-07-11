@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from modules.MHA import MHA
+from Transformer.modules.MHA import MHA
 
 class EncodingLayer(nn.Module):
     def __init__(self,

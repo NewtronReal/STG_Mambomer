@@ -1,7 +1,7 @@
 import torch
 import torch.nn
-from data.data import get_graph_info
-from algo.graph_algo import floyd_warshall
+from Transformer.data.data import get_graph_info
+from Transformer.algo.graph_algo import floyd_warshall
 import scipy.sparse as sp
 import numpy as np
 from torch_geometric.utils import dense_to_sparse

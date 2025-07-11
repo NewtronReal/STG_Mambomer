@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from modules.GraphFeatures import *
+from Transformer.modules.GraphFeatures import *
 
 #For now we are not considering cls token
 class SpatialAttensionBias(nn.Module):

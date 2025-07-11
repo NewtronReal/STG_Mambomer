@@ -3,7 +3,7 @@ import torch.nn as nn
 import pandas as pd
 from data.data import PrepareDataset
 from modules.GraphFeatures import GraphFeatures
-from modules.GraphormerEncoder import GraphormerEncoder
+from Transformer.GraphormerEncoder import GraphormerEncoder
 
 """ 
 Training script with cosannlealing adamw and mseloss

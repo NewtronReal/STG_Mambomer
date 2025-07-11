@@ -1,7 +1,7 @@
-from modules.Encoder import Encoder
+from Transformer.modules.Encoder import Encoder
 import torch
 import torch.nn as nn
-from modules.GraphFeatures import GraphFeatures
+from Transformer.modules.GraphFeatures import GraphFeatures
 
 
 class MAE_Mamba(nn.Module):
